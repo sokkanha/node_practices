@@ -39,7 +39,7 @@ const authenticate = async (req, res, next) => {
  */
 const authAdmin = (req, res, next) => {
     console.log(req.user)
-    if(req.user?.role !== 'admin') return res.status(403).send("Forbidden");
+    if(req.user?.role !== 'admin') return res.status(403).send({message: "Access denied: Insufficient permissions"});
     next();
 }
 

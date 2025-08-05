@@ -6,7 +6,9 @@ const {authenticate, authAdmin} = require('../middleware/auth');
 router.post('/register', userController.registerLogin);
 router.post('/login', userController.userLogin);
 router.get('/users',authenticate,  authAdmin, userController.getUsers);
-
+router.get('/users/:id', authenticate, authAdmin, userController.getUserById);
+router.delete('/users/:id', authenticate, authAdmin, userController.deleteUserById);
+router.put('/users/:id', authenticate, authAdmin, userController.updateUserById);
 router.get('/profile', authenticate, async (req, res) => {
     res.json({ message: `Welcome ${req.user.username}` });
 });

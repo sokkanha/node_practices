@@ -16,8 +16,8 @@ app.get('/', (req,res) => {
   res.send('app is running!');
 });
 
-app.use('/products', productRoute);
-app.use('/users', usersRoute);
+app.use('/api/products', productRoute);
+app.use('/api/auth', usersRoute);
 
 
 
@@ -26,12 +26,3 @@ const PORT = 8000;
 app.listen(PORT, () => {
   console.log(`app is running on http://localhost:${PORT}`)
 });
-
-/**
- * {
-  "username": "admin1",
-  "email": "admin1@email.com",
-  "password":"P@ssw0rd",
-  "role": "admin"
-}
- */

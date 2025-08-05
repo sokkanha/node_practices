@@ -5,7 +5,7 @@ exports.getAllProduct = async(req, res) => {
         const product = await Product.find();
         res.json(product);
     } catch (error) {
-        res.json(500)({message: 'Server error'});
+        res.status(500)({message: 'Server error'});
     }
 };
 
@@ -14,7 +14,7 @@ exports.createProduct = async(req, res) => {
         const product = await Product.create(req.body);
         res.json(product);
     } catch (error) {
-        res.json(500)({message: 'Server error'});
+        res.status(500)({message: 'Server error'});
     }
 }
 
