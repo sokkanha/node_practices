@@ -1,25 +1,35 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
-app.use(express.json());
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const cors = require('cors');
+
+app.use(express.json());
+
+
 const productRoute = require('./routes/product.route');
 const usersRoute = require('./routes/users.route');
 
-
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect('mongodb://localhost:27017/')
 .then(() => console.log('MongoDB connected successfully'))
 .catch(err => console.error('MongoDB connection error:', err));
 
+// Middleware
+app.use(cors({
+  origin: 'http://localhost:8080', // Angular dev server
+  credentials: true
+}));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', (req,res) => {
   res.send('app is running!');
 });
 
 app.use('/api/products', productRoute);
-app.use('/api/auth', usersRoute);
-
-
+app.use('/api/users', usersRoute);
 
 const PORT = 8000;
 
