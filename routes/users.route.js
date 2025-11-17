@@ -5,6 +5,7 @@ const {authenticate, authAdmin} = require('../middleware/auth');
 
 router.post('/register', userController.registerLogin);
 router.post('/login', userController.userLogin);
+router.post('/validate-token', userController.ValidateToken);
 router.get('/users',authenticate,  authAdmin, userController.getUsers);
 router.get('/users/:id', authenticate, authAdmin, userController.getUserById);
 router.delete('/users/:id', authenticate, authAdmin, userController.deleteUserById);

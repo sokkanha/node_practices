@@ -52,7 +52,7 @@ exports.userLogin = async (req , res) => {
          */
         const user = await Users.findOne({ email }).select('+password');
         if (!user) {
-            return res.status(400).json({ message: 'Invalid email!' });
+            return res.status(400).json({ message: 'Invalid email (e.g., @gmail.com).' });
         }
 
         const passwordValidate = await user.validatePassword(password);
@@ -144,5 +144,15 @@ exports.getUserById = async (req, res) => {
         res.json({users, message: `Welcome ${users.username}`})
     } catch (error) {
         res.status(500).json({message: 'Server error'});
+    }
+}
+
+exports.ValidateToken = async(req, res) => {
+    const {token} = req.body;
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        res.json({ valid: true, user: decoded });
+    } catch (error) {
+        res.json({valid: false, message: 'Invalid Token'})
     }
 }
