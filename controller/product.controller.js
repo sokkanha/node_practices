@@ -2,7 +2,18 @@ const Product = require('../models/product.model');
 
 exports.getAllProduct = async(req, res) => {
     try {
-        const product = await Product.find();
+        let { productName } = req.query;
+        if (typeof productName === "string") {
+            productName = productName.trim();
+            productName = productName.replace(/^["']+|["']+$/g, ""); // remove quote marks
+        }
+
+        const filter = {};
+
+        if (productName) {
+            filter.name = { $regex: productName, $options: "i" };
+        }
+        const product = await Product.find(filter);
         res.json(product);
     } catch (error) {
         res.status(500)({message: 'Server error'});
