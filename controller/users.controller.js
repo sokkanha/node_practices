@@ -31,6 +31,46 @@ exports.registerLogin = async (req , res) => {
     }
 };
 
+exports.createUser = async (req, res) => {
+    try {
+        const { email, password, username, confirmPassword, role } = req.body;
+
+        // Check password match
+        if (password !== confirmPassword) {
+            return res.status(400).json({ message: 'Passwords do not match' });
+        }
+
+        // ✅ Actually query the database
+        const existEmail = await Users.findOne({ email });
+        const existUsername = await Users.findOne({ username });
+
+        if (existEmail) {
+            return res.status(400).json({ message: 'Email already in use' });
+        }
+        if (existUsername) {
+            return res.status(400).json({ message: 'Username already taken' });
+        }
+
+        // Default role if not provided
+        const userRole = role || 'user';
+
+        // Create user
+        const user = await Users.create({
+            email,
+            password,  // make sure you hash this in a pre-save hook!
+            username,
+            role: userRole
+        });
+        // No need to call user.save() again if using create()
+
+        res.status(201).json({ user, message: 'User created successfully' });
+
+    } catch (error) {
+        console.error(error); // helpful for debugging
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 /**
  * todo: Login
  */
@@ -52,6 +92,9 @@ exports.userLogin = async (req , res) => {
          */
         const user = await Users.findOne({ email }).select('+password');
         if (!user) {
+            return res.status(404).json({ message: 'User not found. Please contact the administrator.' });
+        }
+        if (!user.email) {
             return res.status(400).json({ message: 'Invalid email (e.g., @gmail.com).' });
         }
 
@@ -73,16 +116,31 @@ exports.userLogin = async (req , res) => {
         }
         }
 
-        //* List all users (only admin can access)
-        exports.getUsers = async (req, res) => {
-        try {
-            //? 'users' array will contain user objects without the 'password' and '__v' fields 
-            const users = await Users.find({}, '-password -__v');
-            res.send(users)// exclude sensitive fields 
-        } catch (error) {
-            res.status(500).json({ message: 'Server error' });
-  }
-}
+//* List all users (only admin can access)
+exports.getUsers = async (req, res) => {
+    try {
+        let { username } = req.query; // filter search by query username
+
+        // Normalize weird quoting or whitespace
+        if (typeof username === "string") {
+            username = username.trim();
+            username = username.replace(/^["']+|["']+$/g, ""); // remove quote marks
+        }
+
+        const filter = {};
+
+        if (username) {
+            filter.username = { $regex: username, $options: "i" };
+        }
+
+        const users = await Users.find(filter, "-password -__v");
+        res.send(users);
+    } catch (error) {
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+
 
 /**
  * todo: Delete User
