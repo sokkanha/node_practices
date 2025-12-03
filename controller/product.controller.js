@@ -1,31 +1,40 @@
 const Product = require('../models/product.model');
 
-exports.getAllProduct = async(req, res) => {
-    try {
-        let { productName } = req.query;
-        if (typeof productName === "string") {
-            productName = productName.trim();
-            productName = productName.replace(/^["']+|["']+$/g, ""); // remove quote marks
-        }
+exports.getAllProduct = async (req, res) => {
+  try {
+    const params = (({ productName, category, brand }) => ({ productName, category, brand }))(req.query);
+    let filter = {};
+    
+    for (const [key, value] of Object.entries(params)) {
+      if (typeof value === "string" && value.trim() !== "") {
+        const cleaned = value.trim().replace(/^["']+|["']+$/g, "");
+        
+        // map query keys to db fields
+        const fieldMap = {
+          productName: "name",
+          category: "category",
+          brand: "brand"
+        };
 
-        const filter = {};
-
-        if (productName) {
-            filter.name = { $regex: productName, $options: "i" };
-        }
-        const product = await Product.find(filter);
-        res.json(product);
-    } catch (error) {
-        res.status(500)({message: 'Server error'});
+        filter[fieldMap[key]] = { $regex: cleaned, $options: "i" };
+      }
     }
+
+    const product = await Product.find(filter);
+
+    res.json(product);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
 };
+
 
 exports.createProduct = async(req, res) => {
     try {
         const product = await Product.create(req.body);
         res.json(product);
     } catch (error) {
-        res.status(500)({message: 'Server error'});
+        res.status(500).json({message: 'Server error'});
     }
 }
 

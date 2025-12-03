@@ -10,6 +10,7 @@ app.use(express.json());
 
 const productRoute = require('./routes/product.route');
 const usersRoute = require('./routes/users.route');
+const inventoryRoute = require('./routes/inventory.route');
 
 mongoose.connect('mongodb://localhost:27017/')
 .then(() => console.log('MongoDB connected successfully'))
@@ -30,6 +31,7 @@ app.get('/', (req,res) => {
 
 app.use('/api/products', productRoute);
 app.use('/api/users', usersRoute);
+app.use('/api/inventory', inventoryRoute);
 
 const PORT = 8000;
 
